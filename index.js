@@ -18,21 +18,21 @@ function getJson() {
     fs.readFileSync("assets/cosule.kml", "utf-8")
   );
 
-  const result = kmlParse.parseGeoJSON(kmlDom).features;
+  let result = kmlParse.parseGeoJSON(kmlDom);
 
-  const foo = result.filter(x => x.geometry.coordinates != undefined);
-
-  foo.map(x => {
-	x.geometry.coordinates = x.geometry.coordinates[0];
-  }); 
+  const foo = result.features.filter(x => x.geometry.coordinates != undefined);
 
   foo.map(x => {
-	x.geometry.coordinates = x.geometry.coordinates.map(z => {
-		return [z[1], z[0], z[2]];
-	})
+    if (x.geometry.type == 'Polygon') {
+      x.geometry.coordinates[0] = x.geometry.coordinates[0].map(cords => {
+        return [cords[1], cords[0], cords[2]];
+      });
+    }
   })
 
-  return foo; 
+  result.features = foo;
+  
+  return result; 
 }
 
 writeJson();
@@ -42,7 +42,19 @@ function writeJson() {
     fs.readFileSync("assets/cosule.kml", "utf-8")
   );
 
-  const result = kmlParse.parseGeoJSON(kmlDom).features;
+  let result = kmlParse.parseGeoJSON(kmlDom);
+
+  const foo = result.features.filter(x => x.geometry.coordinates != undefined);
+
+  foo.map(x => {
+    if (x.geometry.type == 'Polygon') {
+      x.geometry.coordinates[0] = x.geometry.coordinates[0].map(cords => {
+        return [cords[1], cords[0], cords[2]];
+      });
+    }
+  })
+
+  result.features = foo;
 
   const json = JSON.stringify(result);
 
